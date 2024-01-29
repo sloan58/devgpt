@@ -1,6 +1,6 @@
 <?php
 
-use Illuminate\Foundation\Inspiring;
+use OpenAI\Laravel\Facades\OpenAI;
 use Illuminate\Support\Facades\Artisan;
 
 /*
@@ -14,6 +14,14 @@ use Illuminate\Support\Facades\Artisan;
 |
 */
 
-Artisan::command('inspire', function () {
-    $this->comment(Inspiring::quote());
-})->purpose('Display an inspiring quote');
+Artisan::command('chat', function () {
+
+    $result = OpenAI::chat()->create([
+        'model' => 'gpt-3.5-turbo',
+        'messages' => [
+            ['role' => 'user', 'content' => 'Hello!'],
+        ],
+    ]);
+
+    echo $result->choices[0]->message->content; // Hello! How can I assist you today?
+})->purpose('Chat with OpenAI');
