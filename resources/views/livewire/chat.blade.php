@@ -55,6 +55,7 @@
         const callback = (mutationList, observer) => {
             for (const mutation of mutationList) {
                 scrollToBottom();
+                hljs.highlightAll();
             }
         };
 
