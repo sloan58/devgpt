@@ -13,6 +13,12 @@ class Chat extends Component
 
     public string $answer = '';
 
+    private string $startCodeBlock = '/```\w+\s?(.*)/';
+
+    private string $endCodeBlock = '/```\n\n/';
+
+    private bool $buildingCodeBlock = false;
+
     public function send()
     {
         $this->receiving = true;
@@ -23,16 +29,48 @@ class Chat extends Component
         ]);
 
         foreach ($stream as $response) {
+            // We're finished streaming - break.
             if ($response->choices[0]->finishReason) {
                 break;
             }
+
+            // If we're building a code block, remove the trailing closing tags
+            // so that we can add more code content.
+            if ($this->buildingCodeBlock) {
+                $this->answer = preg_replace('/<\/xmp><\/pre>$/', '', $this->answer);
+            }
+
+            // Concatenate the stream content to our answer.
             $this->answer .= $response->choices[0]->delta->content;
-            
-            $this->answer = preg_replace(
-                '/```\w+\s([\s\S]+?)```/',
-                "<pre class=\"my-2 bg-slate-200 rounded p-4\">$1</pre>",
-                $this->answer
-            );
+
+            // If this regex matches, we're starting a code block.
+            if (preg_match($this->startCodeBlock, $this->answer)) {
+                // Strip out markdown syntax (```) and replace with xmp/pre tags for UI format.
+                $this->answer = preg_replace(
+                    $this->startCodeBlock,
+                    "<pre class=\"my-2 bg-slate-200 rounded px-4 pb-2\"><xmp>$1</xmp></pre>",
+                    $this->answer
+                );
+
+                // We're now building a code block.
+                $this->buildingCodeBlock = true;
+            }
+
+            // If this regex matches, we're ending a code block.
+            if (preg_match($this->endCodeBlock, $this->answer)) {
+                // Replace the trailing newlines with proper closing tags.
+                $this->answer = preg_replace('/```\n?\n?$/', '</xmp></pre>', $this->answer);
+
+                // We're no longer building a code block.
+                $this->buildingCodeBlock = false;
+            }
+
+            // If we're building a code block but not yet finished, we need to replace the closing tags.
+            if ($this->buildingCodeBlock and ! preg_match('/<\/xmp><\/pre>$/', $this->answer)) {
+                $this->answer .= '</xmp></pre>';
+            }
+
+            // Send the stream to the UI.
             $this->stream(to: 'answer', content: $this->answer, replace: true);
         }
 
