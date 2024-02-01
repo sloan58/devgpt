@@ -21,29 +21,19 @@
             [x-cloak] { display: none !important; }
         </style>
 
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 
         <!-- and it's easy to individually load additional languages -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/go.min.js"></script>
 
     </head>
-    <body class="font-sans antialiased">
-        <x-banner />
+    <body class="font-sans antialiased overflow-x-hidden bg-gray-700">
+    <x-banner />
 
-        <div class="flex flex-col h-screen justify-between bg-gray-700 w-screen">
-            @livewire('navigation-menu')
-            <main>
-                {{ $slot }}
-            </main>
-            @if (isset($footer))
-                {{ $footer }}
-            @endif
-        </div>
-
+        {{ $slot }}
         @stack('modals')
-
         @livewireScripts
-    </body>
 
+    </body>
 </html>

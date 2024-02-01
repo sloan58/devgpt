@@ -13,9 +13,9 @@ class Chat extends Component
 
     public string $answer = '';
 
-    private string $startCodeBlock = '/```\w+\s?(.*)\n/';
+    private string $startCodeBlock = '/```(\w+\n|(\n))/';
 
-    private string $endCodeBlock = '/```\n\n/';
+    private string $endCodeBlock = '/```/';
 
     private bool $buildingCodeBlock = false;
 
@@ -44,11 +44,13 @@ class Chat extends Component
             $this->answer .= $response->choices[0]->delta->content;
 
             // If this regex matches, we're starting a code block.
-            if (preg_match($this->startCodeBlock, $this->answer)) {
+            if (preg_match($this->startCodeBlock, $this->answer) and ! $this->buildingCodeBlock) {
                 // Strip out markdown syntax (```) and replace with code/pre tags for UI format.
+                preg_match($this->startCodeBlock, $this->answer, $matches);
+                info('matched', [$this->answer, $matches]);
                 $this->answer = preg_replace(
                     $this->startCodeBlock,
-                    "<pre class=\"my-2 bg-slate-200 rounded px-4 pb-2\"><code><xmp>$1</xmp></code></pre>",
+                    "<pre class=\"my-2 bg-gray-900 text-gray-200 font-semibold rounded px-4 pt-2 pb-1\"><code><xmp></xmp></code></pre>",
                     $this->answer
                 );
 
@@ -57,7 +59,7 @@ class Chat extends Component
             }
 
             // If this regex matches, we're ending a code block.
-            if (preg_match($this->endCodeBlock, $this->answer)) {
+            if (preg_match($this->endCodeBlock, $this->answer) and $this->buildingCodeBlock) {
                 // Replace the trailing newlines with proper closing tags.
                 $this->answer = preg_replace('/```\n?\n?$/', '</xmp></code></pre>', $this->answer);
 
@@ -87,6 +89,7 @@ class Chat extends Component
 
     public function render(): View
     {
-        return view('livewire.chat');
+//        $this->messages = config('messages');
+        return view('livewire.chat')->layout('layouts.chat');
     }
 }
