@@ -10,7 +10,7 @@
             </div>
         </template>
         <div id="messages" class="flex flex-1 flex-col space-y-4 p-3 overflow-y-auto scrollbar-thumb-blue scrollbar-thumb-rounded scrollbar-track-gray-lighter scrollbar-w-2 scrolling-touch">
-            <div class="w-3/4 lg:w-1/2 mx-auto pt-4">
+            <div class="w-3/4 lg:w-1/3 mx-auto pt-4">
                 <template x-for="(message, index) in messages" hidden>
                     <div class="chat-message group" :key="Date.now()">
                         <div class="flex-col justify-start my-4 text-gray-200">
@@ -81,7 +81,7 @@
         <div class="py-4 mb-2 sm:mb-0">
             <div class="relative flex justify-center">
                 <label for="default-search" class=" mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">Search</label>
-                <div class="relative w-full mx-4 md:mx-0 lg:w-1/2">
+                <div class="relative w-full md:w-3/4 lg:w-1/2 mx-4 md:mx-0">
                     <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-gray-400">
                             <path stroke-linecap="round" stroke-linejoin="round" d="m12.75 15 3-3m0 0-3-3m3 3h-7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
