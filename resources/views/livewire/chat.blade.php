@@ -1,5 +1,5 @@
 <div>
-    <div x-data="chatApp()" class="flex-1 justify-between flex flex-col h-screen">
+    <div x-data="chatApp()" x-init="init()" class="flex-1 justify-between flex flex-col h-screen">
         @livewire('navigation-menu')
         <template x-if="!messages.length" hidden>
             <div class="flex flex-1 grow justify-center">
@@ -56,7 +56,8 @@
                             </span>
                         </div>
                     </div>
-                    <div id="answer" wire:stream="answer" style="white-space: pre-line">{!! $answer !!}</div>
+                    <div x-html="shownAnswer" style="white-space: pre-line"></div>
+                    <div id="answer" wire:stream="answer" hidden></div>
                 </div>
             </div>
         </div>
@@ -95,35 +96,36 @@
     </div>
 
     <script>
-        const scrollToBottom = () => {
-            let messages = document.getElementById("messages");
-            messages.scrollTop = messages.scrollHeight;
-        };
-
-        const targetNode = document.getElementById("answer");
-
-        let observer = new MutationObserver((mutationList, observer) => {
-            for (const mutation of mutationList) {
-                scrollToBottom();
-                // hljs.highlightAll(); // Causes a bunch of console errors for re-highlighting.
-            }
-        });
-
-        observer.observe(targetNode, {
-            characterData: true,
-            subtree: true,
-            attributes: true,
-            childList: true
-        });
-
         let chatApp = () => {
             return {
                 receiving: @entangle('receiving'),
                 messages: @entangle('messages'),
                 answer: @entangle('answer'),
                 prompt: '',
+                shownAnswer: '',
+                init: function() {
+                    const targetNode = document.getElementById("answer");
+
+                    let observer = new MutationObserver((mutationList, observer) => {
+                        for (const mutation of mutationList) {
+                            this.scrollToBottom();
+                            this.shownAnswer = window.md.render(targetNode.innerHTML);
+                        }
+                    });
+
+                    observer.observe(targetNode, {
+                        characterData: true,
+                        subtree: true,
+                        attributes: true,
+                        childList: true
+                    });
+                },
                 formattedContent: function(content) {
-                    return content.replace(/```\w+\s([\s\S]+?)```/g, (match, p1) => `<pre class="my-2 bg-slate-200 rounded px-4">${p1}</pre>`)
+                    return window.md.render(content);
+                },
+                scrollToBottom: function() {
+                    let messages = document.getElementById("messages");
+                    messages.scrollTop = messages.scrollHeight;
                 },
                 send: async function(message = null) {
                     let content = message ?? this.prompt;
@@ -135,10 +137,10 @@
                         role: 'user',
                         content: message ?? this.prompt,
                     });
-                    scrollToBottom();
+                    this.scrollToBottom();
                     this.prompt = '';
                     @this.call('send');
-                    scrollToBottom();
+                    this.scrollToBottom();
                 },
                 clear: function () {
                     this.messages = [];
@@ -149,12 +151,12 @@
                         this.messages = Object.values(this.messages);
                     }
                     await this.messages.pop();
-                    scrollToBottom();
+                    this.scrollToBottom();
                     await @this.call('send');
                     if (typeof this.messages === 'object') {
                         this.messages = Object.values(this.messages);
                     }
-                    scrollToBottom();
+                    this.scrollToBottom();
                 }
             }
         }

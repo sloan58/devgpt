@@ -16,6 +16,8 @@
         "vite": "^5.0.0"
     },
     "dependencies": {
+        "highlight.js": "^11.9.0",
+        "markdown-it": "^14.0.0",
         "openai": "^4.26.0",
         "showdown": "^2.1.0"
     }

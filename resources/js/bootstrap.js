@@ -9,6 +9,23 @@ window.axios = axios;
 
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
+import markdownit from 'markdown-it'
+import hljs from "highlight.js";
+import 'highlight.js/styles/github-dark.css';
+
+window.md = markdownit({
+    highlight: function (str, lang) {
+        if (lang && hljs.getLanguage(lang)) {
+            try {
+                return '<pre><code class="hljs">' +
+                    hljs.highlight(str, { language: lang, ignoreIllegals: true }).value +
+                    '</code></pre>';
+            } catch (__) {}
+        }
+        return '<pre><code class="hljs">' + md.utils.escapeHtml(str) + '</code></pre>';
+    }
+});
+
 /**
  * Echo exposes an expressive API for subscribing to channels and listening
  * for events that are broadcast by Laravel. Echo and event broadcasting
