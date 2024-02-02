@@ -81,14 +81,14 @@
         <div class="py-4 mb-2 sm:mb-0">
             <div class="relative flex justify-center">
                 <label for="default-search" class=" mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">Search</label>
-                <div class="relative w-3/4 lg:w-1/2">
+                <div class="relative w-full mx-4 md:mx-0 lg:w-1/2">
                     <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-gray-400">
                             <path stroke-linecap="round" stroke-linejoin="round" d="m12.75 15 3-3m0 0-3-3m3 3h-7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                         </svg>
                     </div>
                     <input @keyup.enter.prevent="send(null)" x-model="prompt" type="search" id="default-search" class="block w-full p-4 ps-10 text-sm text-gray-900 rounded-lg bg-gray-700 border-gray-600 placeholder-gray-400 text-white border-gray-600 focus:border-gray-600 focus:ring-0" placeholder="Ask me something promptly..." required>
-                    <x-button @click="send" type="text" class="absolute end-2.5 bottom-2.5 !bg-gray-800 !text-gray-400 hover:!text-gray-200">Send it</x-button>
+                    <x-button @click="send(null)" type="text" class="hidden md:block absolute end-2.5 bottom-2.5 !bg-gray-800 !text-gray-400 hover:!text-gray-200">Send it</x-button>
                 </div>
             </div>
         </div>
@@ -127,7 +127,9 @@
                 },
                 send: async function(message = null) {
                     let content = message ?? this.prompt;
-                    console.log(content);
+                    if (content === '') {
+                        return;
+                    }
                     this.receiving = true;
                     await this.messages.push({
                         role: 'user',
